@@ -1,0 +1,51 @@
+मजदूर हिसाब-किताब — मुफ्त ऑनलाइन सेटअप
+
+यह वर्जन Firebase के Spark (free) प्लान के लिए बनाया गया है। किसी भुगतान की जरूरत नहीं है, जब तक आप मुफ्त प्लान की सीमाओं के अंदर रहते हैं। Google/Firebase की शर्तें और मुफ्त कोटा बदल सकते हैं।
+
+भाग 1: Firebase प्रोजेक्ट बनाना
+1. https://console.firebase.google.com खोलें और अपने Google अकाउंट से लॉगिन करें।
+2. Add project / प्रोजेक्ट जोड़ें पर क्लिक करें। नाम रखें: Labour-Hisaab।
+3. Google Analytics बंद रख सकते हैं; फिर Create project करें।
+4. प्रोजेक्ट खुलने पर Web (</>) आइकन दबाएँ। App nickname रखें: Labour Website। Register app करें।
+5. Firebase जो Config दिखाएगा, उसमें apiKey, authDomain, projectId, appId आदि होंगे। पूरा firebaseConfig वाला JSON कॉपी करें।
+
+भाग 2: ईमेल-पासवर्ड लॉगिन चालू करें
+1. Firebase Console → Build → Authentication → Get started।
+2. Sign-in method में Email/Password खोलें।
+3. Email/Password को Enable करके Save करें।
+
+भाग 3: Cloud Firestore चालू करें
+1. Build → Firestore Database → Create database।
+2. Start in production mode चुनें। Region चुनते समय भारत के नजदीकी उपलब्ध region को चुनें।
+3. Database बनने के बाद Rules टैब खोलें।
+4. इस ZIP में दिए firestore.rules का पूरा टेक्स्ट Rules में पेस्ट करके Publish करें।
+   ये नियम हर यूजर को सिर्फ अपने लॉगिन UID के डेटा तक सीमित रखते हैं।
+
+भाग 4: वेबसाइट कनेक्ट करना
+1. labour-cloud.html फाइल Chrome में खोलें।
+2. इस अपडेटेड index.html में Firebase Web Config पहले से जोड़ा गया है; वेबसाइट खोलते ही Firebase कनेक्शन शुरू होगा।
+3. Firebase Console → Authentication → Sign-in method में Email/Password चालू करें।
+4. अपना ईमेल और कम से कम 6 अक्षर का पासवर्ड डालें। पहली बार “नया अकाउंट बनाएँ” दबाएँ।
+5. दूसरे मोबाइल पर भी यही वेबसाइट खोलें और उसी ईमेल-पासवर्ड से Login करें। अब दोनों डिवाइस में एक ही cloud data दिखेगा।
+
+भाग 5: वेबसाइट को मुफ्त में ऑनलाइन प्रकाशित करना (GitHub Pages)
+1. https://github.com पर मुफ्त अकाउंट बनाएँ / लॉगिन करें।
+2. New repository बनाएँ, नाम labour-hisaab रखें और Public चुनें।
+3. labour-cloud.html को index.html नाम दें और repository में upload करें। (फाइल का नाम index.html होना जरूरी है।)
+4. Repository → Settings → Pages → Deploy from a branch चुनें।
+5. Branch main और folder /(root) चुनकर Save करें।
+6. कुछ मिनट बाद GitHub Pages का URL मिलेगा। उसे मोबाइल में खोलकर इस्तेमाल करें।
+
+महत्वपूर्ण:
+- Firebase Config वेबसाइट में दिखता है; यह सामान्य है। सुरक्षा Firestore Rules और Authentication से होती है। Rules को किसी के साथ साझा करने से पहले जाँचें।
+- किसी को अपना ईमेल/पासवर्ड न दें।
+- Firebase Spark प्लान की मुफ्त उपयोग सीमाएँ हैं। सीमा पार होने पर सेवा सीमित हो सकती है; भुगतान प्लान में अपने-आप अपग्रेड न करें।
+- इस फाइल में डेटा क्लाउड पर सेव होता है, लेकिन फिर भी समय-समय पर CSV रिपोर्ट डाउनलोड कर लें।
+- अभी इस संस्करण में मजदूर/रिकॉर्ड हटाना है; पुराने रिकॉर्ड एडिट करना, PDF वेतन पर्ची और पासवर्ड रीसेट जैसी सुविधाएँ अगले अपडेट में जोड़ी जा सकती हैं।
+
+
+APP INSTALL (PWA):
+- GitHub Pages पर इस पैकेज की सभी फाइलें repository के root में रखें। index.html नाम वैसा ही रहने दें।
+- वेबसाइट HTTPS URL पर खुलने के बाद Android Chrome में menu → Install app / Add to Home screen चुनें।
+- iPhone Safari में Share → Add to Home Screen चुनें।
+- पहली बार इंटरनेट से खोलें। Firebase login के लिए इंटरनेट आवश्यक है।

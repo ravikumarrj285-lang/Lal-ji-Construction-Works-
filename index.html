@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lal Ji Construction Works</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#173b91">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#172033;font-family:system-ui,-apple-system,"Noto Sans Devanagari",sans-serif}
+header{background:linear-gradient(120deg,#173b91,#3478e5);color:#fff;padding:20px 15px}header h1{margin:0;font-size:23px}header p{margin:4px 0 0;font-size:13px}
+main{max-width:1100px;margin:16px auto;padding:0 13px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;margin-bottom:13px;box-shadow:0 3px 12px #14264b08}
+h2{font-size:17px;margin:0 0 12px}label{display:block;color:#687386;font-size:13px;margin:9px 0 5px}input,select,button{font:inherit}input,select{width:100%;padding:10px;border:1px solid #d7deea;border-radius:9px;min-height:41px}button{border:0;border-radius:9px;padding:10px 13px;background:#2457d6;color:white;font-weight:600;cursor:pointer}button.alt{background:#edf2ff;color:#2149b0}button.red{background:#fff0f0;color:#bd303b}button.green{background:#16845b}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}.stat{background:#fff;padding:13px;border-radius:12px;border:1px solid #e2e8f0}.stat small{color:#687386}.stat b{display:block;font-size:20px;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1.4fr;gap:13px}.actions,.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}.toolbar input{flex:1;min-width:130px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:570px}td,th{text-align:left;padding:9px 7px;border-bottom:1px solid #e8edf4;font-size:13px}th{color:#687386;background:#fafbfd}
+.muted{font-size:12px;color:#687386}.hidden{display:none!important}.notice{padding:10px;background:#fff7df;border-radius:9px;color:#76520b;font-size:13px;margin:10px 0}.status{font-size:12px;color:#dce8ff;margin-top:7px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><h1>🏗️ Lal Ji Construction Works</h1><p>मजदूर हाजिरी • मजदूरी • एडवांस • भुगतान • रिपोर्ट</p><div class="status" id="cloudStatus">Firebase सेटअप बाकी है</div></header>
+<main>
+<section class="card" id="setupWarn">
+<h2>पहली बार सेटअप</h2>
+<div class="notice">यह वेबसाइट Firebase के Free (Spark) प्लान पर चलने के लिए बनाई गई है। ऑनलाइन डेटा चालू करने के लिए नीचे Firebase की Web App Config भरनी होगी। यह जानकारी Firebase Console में मिलेगी।</div>
+<label>Firebase Config — पूरा JSON पेस्ट करें</label>
+<textarea id="configInput" rows="5" style="width:100%;border:1px solid #d7deea;border-radius:9px;padding:10px;font:12px monospace" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea>
+<div class="actions"><button id="saveConfig">Config सेव करके कनेक्ट करें</button><button class="alt" id="showHelp">सेटअप निर्देश</button></div>
+<p class="muted">Config आपके इसी ब्राउज़र में सेव होगा। Firebase की सुरक्षा Firestore Rules और Login से होगी।</p>
+</section>
+
+<section class="card hidden" id="authCard">
+<h2>🔐 अपना अकाउंट खोलें</h2>
+<div class="row"><div><label>ईमेल</label><input id="email" type="email" placeholder="आपका ईमेल"></div><div><label>पासवर्ड</label><input id="password" type="password" placeholder="कम से कम 6 अक्षर"></div></div>
+<div class="actions"><button id="loginBtn">लॉगिन</button><button class="alt" id="registerBtn">नया अकाउंट बनाएँ</button><button class="red" id="logoutBtn" style="display:none">लॉगआउट</button></div>
+<p class="muted" id="authMsg">पहली बार हैं तो नया अकाउंट बनाएँ। उसी ईमेल और पासवर्ड से दूसरे मोबाइल में भी लॉगिन कर सकेंगे।</p>
+</section>
+
+<div id="app" class="hidden">
+<div class="stats"><div class="stat"><small>कुल मजदूर</small><b id="sWorkers">0</b></div><div class="stat"><small>कुल मजदूरी</small><b id="sEarn">₹0</b></div><div class="stat"><small>कुल भुगतान</small><b id="sPaid">₹0</b></div><div class="stat"><small>कुल बकाया</small><b id="sDue">₹0</b></div></div>
+<div class="grid">
+<section class="card">
+<h2>➕ मजदूर जोड़ें</h2>
+<form id="workerForm">
+<label>नाम *</label><input id="wName" required>
+<div class="row"><div><label>मोबाइल</label><input id="wPhone" inputmode="numeric"></div><div><label>मजदूरी प्रकार</label><select id="wType"><option value="day">दैनिक</option><option value="hour">प्रति घंटा</option><option value="contract">ठेका</option></select></div></div>
+<label>मजदूरी दर / ठेका रकम (₹)</label><input id="wRate" type="number" min="0" step=".01" required>
+<div class="actions"><button>मजदूर सेव करें</button></div></form>
+<hr style="border:0;border-top:1px solid #e8edf4;margin:16px 0">
+<h2>📅 हाजिरी / मजदूरी</h2>
+<form id="entryForm"><label>मजदूर</label><select id="eWorker" required></select>
+<div class="row"><div><label>तारीख</label><input id="eDate" type="date" required></div><div><label>काम का प्रकार</label><select id="eKind"><option value="full">पूरा दिन</option><option value="half">आधा दिन</option><option value="hours">घंटे</option><option value="contract">ठेका रकम</option></select></div></div>
+<div class="row"><div><label>घंटे (लागू हो तो)</label><input id="eQty" type="number" min="0" step=".5" value="8"></div><div><label>रकम (₹), खाली = अपने आप</label><input id="eAmount" type="number" min="0" step=".01"></div></div>
+<label>विवरण</label><input id="eNote" placeholder="जैसे: छत का काम"><div class="actions"><button>हिसाब सेव करें</button></div></form>
+</section>
+<section class="card">
+<h2>👷 मजदूरों का हिसाब</h2><div class="toolbar"><input id="search" placeholder="नाम/मोबाइल खोजें"><button class="alt" id="csvBtn">CSV रिपोर्ट</button><button class="alt" id="backupBtn">बैकअप</button></div>
+<div class="tablewrap"><table><thead><tr><th>मजदूर</th><th>दर</th><th>मजदूरी</th><th>भुगतान</th><th>बकाया</th><th></th></tr></thead><tbody id="workerRows"></tbody></table></div>
+<p class="muted">नाम पर क्लिक करके हिस्ट्री देखें।</p>
+</section></div>
+<section class="card"><h2>💸 एडवांस / भुगतान</h2><form id="payForm"><div class="row"><div><label>मजदूर</label><select id="pWorker" required></select></div><div><label>तारीख</label><input id="pDate" type="date" required></div></div><div class="row"><div><label>रकम (₹)</label><input id="pAmount" type="number" min="1" step=".01" required></div><div><label>प्रकार</label><select id="pType"><option value="payment">मजदूरी भुगतान</option><option value="advance">एडवांस</option></select></div></div><label>विवरण</label><input id="pNote"><div class="actions"><button class="green">भुगतान सेव करें</button></div></form></section>
+<section class="card hidden" id="history"><div style="display:flex;justify-content:space-between"><h2 id="historyTitle">हिस्ट्री</h2><button class="alt" id="closeHistory">बंद करें</button></div><div id="historySummary" class="muted"></div><div class="tablewrap"><table><thead><tr><th>तारीख</th><th>प्रकार</th><th>विवरण</th><th>रकम</th><th></th></tr></thead><tbody id="historyRows"></tbody></table></div></section>
+</div>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const $=id=>document.getElementById(id), today=new Date().toISOString().slice(0,10);
+$('eDate').value=$('pDate').value=today;
+let auth=null,db=null,uid=null,workers=[],entries=[],payments=[],unsubs=[];
+const money=n=>'₹'+(Number(n)||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function msg(t){$('authMsg').textContent=t}
+function setStatus(t){$('cloudStatus').textContent=t}
+function initFirebase(cfg){if(!firebase.apps.length)firebase.initializeApp(cfg);auth=firebase.auth();db=firebase.firestore();$('setupWarn').classList.add('hidden');$('authCard').classList.remove('hidden');setStatus('Firebase कनेक्शन तैयार — लॉगिन करें');auth.onAuthStateChanged(user=>{uid=user?.uid||null;$('app').classList.toggle('hidden',!user);$('logoutBtn').style.display=user?'inline-block':'none';if(user){setStatus('ऑनलाइन: '+user.email);listen()}else{stopListen();setStatus('लॉगआउट');}})}
+$('saveConfig').onclick=()=>{try{let c=JSON.parse($('configInput').value);if(!c.apiKey||!c.projectId||!c.appId)throw 0;localStorage.setItem('labourFirebaseConfig',JSON.stringify(c));initFirebase(c)}catch{alert('Firebase Config सही JSON में पेस्ट करें।')}};
+$('showHelp').onclick=()=>alert('SETUP-GUIDE.txt फाइल में पूरे निर्देश दिए हैं।');
+const embeddedFirebaseConfig = {"apiKey":"AIzaSyABYLBP4XO9-UgfKsycmWgn7ioL4OZg9t8","authDomain":"lal-ji-construction-works.firebaseapp.com","projectId":"lal-ji-construction-works","storageBucket":"lal-ji-construction-works.firebasestorage.app","messagingSenderId":"684055075635","appId":"1:684055075635:web:d0919b1b0d649cec6c7c46"};
+try { initFirebase(embeddedFirebaseConfig); } catch(e) { setStatus('Firebase कनेक्शन शुरू नहीं हो पाया: '+e.message); }
+$('loginBtn').onclick=async()=>{try{await auth.signInWithEmailAndPassword($('email').value.trim(),$('password').value);msg('लॉगिन सफल।')}catch(e){msg(errorText(e))}};
+$('registerBtn').onclick=async()=>{try{await auth.createUserWithEmailAndPassword($('email').value.trim(),$('password').value);msg('अकाउंट बन गया।')}catch(e){msg(errorText(e))}};
+$('logoutBtn').onclick=()=>auth.signOut();
+function errorText(e){return e.code==='auth/operation-not-allowed'?'Firebase में Email/Password Login चालू करें।':e.code==='auth/weak-password'?'पासवर्ड कम से कम 6 अक्षर का रखें।':e.code==='auth/email-already-in-use'?'यह ईमेल पहले से रजिस्टर्ड है।':e.message}
+function col(name){return db.collection('users').doc(uid).collection(name)}
+function stopListen(){unsubs.forEach(f=>f());unsubs=[]}
+function listen(){stopListen();['workers','entries','payments'].forEach(name=>{unsubs.push(col(name).onSnapshot(s=>{let a=s.docs.map(d=>({id:d.id,...d.data()}));if(name==='workers')workers=a;if(name==='entries')entries=a;if(name==='payments')payments=a;render()},e=>msg('डेटा पढ़ने में समस्या: '+e.message)))})}
+async function add(name,obj){await col(name).add({...obj,createdAt:firebase.firestore.FieldValue.serverTimestamp()})}
+function total(id){let earn=entries.filter(x=>x.wid===id).reduce((s,x)=>s+(+x.amount||0),0),paid=payments.filter(x=>x.wid===id).reduce((s,x)=>s+(+x.amount||0),0);return{earn,paid,due:earn-paid}}
+function render(){$('sWorkers').textContent=workers.length;let t=workers.reduce((a,w)=>{let z=total(w.id);a.e+=z.earn;a.p+=z.paid;a.d+=z.due;return a},{e:0,p:0,d:0});$('sEarn').textContent=money(t.e);$('sPaid').textContent=money(t.p);$('sDue').textContent=money(t.d);
+let q=$('search').value.toLowerCase();$('workerRows').innerHTML=workers.filter(w=>(w.name+' '+(w.phone||'')).toLowerCase().includes(q)).map(w=>{let z=total(w.id);return `<tr><td><a href="#" onclick="showHistory('${w.id}');return false">${esc(w.name)}</a><div class="muted">${esc(w.phone||'')}</div></td><td>${money(w.rate)}<div class="muted">${w.type==='hour'?'प्रति घंटा':w.type==='contract'?'ठेका':'दैनिक'}</div></td><td>${money(z.earn)}</td><td>${money(z.paid)}</td><td>${money(z.due)}</td><td><button class="red" onclick="removeWorker('${w.id}')">हटाएँ</button></td></tr>`}).join('')||'<tr><td colspan="6">अभी मजदूर नहीं हैं।</td></tr>';
+let opts='<option value="">मजदूर चुनें</option>'+workers.map(w=>`<option value="${w.id}">${esc(w.name)}</option>`).join('');$('eWorker').innerHTML=opts;$('pWorker').innerHTML=opts}
+$('workerForm').onsubmit=async e=>{e.preventDefault();try{await add('workers',{name:$('wName').value.trim(),phone:$('wPhone').value.trim(),type:$('wType').value,rate:+$('wRate').value});e.target.reset()}catch(x){alert(x.message)}};
+$('entryForm').onsubmit=async e=>{e.preventDefault();let w=workers.find(x=>x.id===$('eWorker').value);if(!w)return;let kind=$('eKind').value,qty=+$('eQty').value,amount=$('eAmount').value!==''?+$('eAmount').value:kind==='half'?w.rate/2:kind==='hours'?w.rate*qty:kind==='contract'?w.rate:w.type==='hour'?w.rate*8:w.rate;try{await add('entries',{wid:w.id,date:$('eDate').value,kind,qty,amount,note:$('eNote').value});$('eAmount').value=$('eNote').value=''}catch(x){alert(x.message)}};
+$('payForm').onsubmit=async e=>{e.preventDefault();try{await add('payments',{wid:$('pWorker').value,date:$('pDate').value,amount:+$('pAmount').value,type:$('pType').value,note:$('pNote').value});$('pAmount').value=$('pNote').value=''}catch(x){alert(x.message)}};
+async function removeWorker(id){if(!confirm('मजदूर और उससे जुड़े सभी रिकॉर्ड हटाएँ?'))return;try{let batch=db.batch();batch.delete(col('workers').doc(id));for(let n of ['entries','payments']){let snap=await col(n).where('wid','==',id).get();snap.docs.forEach(d=>batch.delete(d.ref))}await batch.commit()}catch(e){alert(e.message)}}
+window.removeWorker=removeWorker;
+window.showHistory=id=>{let w=workers.find(x=>x.id===id),z=total(id);$('history').classList.remove('hidden');$('historyTitle').textContent=w.name+' — पूरी हिस्ट्री';$('historySummary').textContent=`मजदूरी ${money(z.earn)} | भुगतान ${money(z.paid)} | बकाया ${money(z.due)}`;let r=[...entries.filter(x=>x.wid===id).map(x=>({...x,label:'मजदूरी',desc:x.note||x.kind})),...payments.filter(x=>x.wid===id).map(x=>({...x,label:x.type==='advance'?'एडवांस':'भुगतान',desc:x.note||''}))].sort((a,b)=>(b.date||'').localeCompare(a.date||''));$('historyRows').innerHTML=r.map(x=>`<tr><td>${x.date||''}</td><td>${x.label}</td><td>${esc(x.desc)}</td><td>${money(x.amount)}</td><td><button class="red" onclick="deleteRecord('${x.id}','${entries.includes(x)?'entries':'payments'}')">हटाएँ</button></td></tr>`).join('')||'<tr><td colspan="5">रिकॉर्ड नहीं है।</td></tr>'};
+window.deleteRecord=async(id,n)=>{if(confirm('यह रिकॉर्ड हटाएँ?'))await col(n).doc(id).delete()};
+$('closeHistory').onclick=()=>$('history').classList.add('hidden');$('search').oninput=render;
+$('csvBtn').onclick=()=>{let rows=[['मजदूर','मोबाइल','तारीख','प्रकार','विवरण','रकम']];workers.forEach(w=>{entries.filter(x=>x.wid===w.id).forEach(x=>rows.push([w.name,w.phone,x.date,'मजदूरी',x.note||x.kind,x.amount]));payments.filter(x=>x.wid===w.id).forEach(x=>rows.push([w.name,w.phone,x.date,x.type,x.note,x.amount]))});let csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');download('labour-report.csv',csv,'text/csv;charset=utf-8')};
+$('backupBtn').onclick=()=>download('labour-backup.json',JSON.stringify({workers,entries,payments},null,2),'application/json');
+function download(n,c,t){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([c],{type:t}));a.href=u;a.download=n;a.click();URL.revokeObjectURL(u)}
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body></html>
